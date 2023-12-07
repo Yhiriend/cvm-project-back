@@ -138,7 +138,6 @@ export const update = async (user: User, newPassword: string) => {
                         );
                       });
                     } else {
-                      //delete updateData.password;
                       connection.query(
                         "UPDATE users SET ? WHERE id = ?",
                         [updateData, user.id],

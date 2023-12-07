@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getByUserId = exports.getCart = exports.saveProductInCart = void 0;
+exports.buyUserCart = exports.getByUserId = exports.getCart = exports.saveProductInCart = void 0;
 const CartRepository = __importStar(require("../repository/cart.repository"));
 const saveProductInCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -70,3 +70,15 @@ const getByUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getByUserId = getByUserId;
+const buyUserCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { cartId, totalToPay, paymentMethod, address, phone, userId } = req.body;
+        const result = yield CartRepository.buyCart(cartId, totalToPay, paymentMethod, userId, address, phone);
+        res.json(result);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ error: error });
+    }
+});
+exports.buyUserCart = buyUserCart;

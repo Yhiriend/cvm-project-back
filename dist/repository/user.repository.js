@@ -133,7 +133,6 @@ const update = (user, newPassword) => __awaiter(void 0, void 0, void 0, function
                                     });
                                 }
                                 else {
-                                    //delete updateData.password;
                                     connection_1.default.query("UPDATE users SET ? WHERE id = ?", [updateData, user.id], (err, data) => {
                                         if (err) {
                                             reject(err.message);

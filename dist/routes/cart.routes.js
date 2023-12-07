@@ -6,4 +6,5 @@ const router = (0, express_1.Router)();
 router.post("/saveincart", cart_controller_1.saveProductInCart);
 router.post("/getcart", cart_controller_1.getCart);
 router.post("/getcart-by-userid", cart_controller_1.getByUserId);
+router.post("/buycart", cart_controller_1.buyUserCart);
 exports.default = router;

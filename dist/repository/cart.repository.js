@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buyCart = exports.getCartByUserId = exports.getCartElementsByUserId = exports.insertProductIntoCart = void 0;
+exports.removeProductFromCart = exports.buyCart = exports.getCartByUserId = exports.getCartElementsByUserId = exports.insertProductIntoCart = void 0;
 const connection_1 = __importDefault(require("../db/connection"));
 const product_mappers_1 = require("../utils/adapters/product.mappers");
 const insertProductIntoCart = (cartId, productId) => {
@@ -61,7 +61,12 @@ const getCartElementsByUserId = (userId) => {
                 console.log(result);
                 if (result.length === 0) {
                     resolve({
-                        data: { productList: [], cartId: null, cartPaid: null, cartTotal: null },
+                        data: {
+                            productList: [],
+                            cartId: null,
+                            cartPaid: null,
+                            cartTotal: null,
+                        },
                     });
                 }
                 else {
@@ -107,9 +112,14 @@ const getCartByUserId = (userId) => {
 };
 exports.getCartByUserId = getCartByUserId;
 const buyCart = (cartId, totalToPay, paymentMethod, userId, address, phone) => {
-    const purchaseDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+    const refPurchaseCod = new Date().toISOString().replace(/[-:.]/g, "") +
+        "U" +
+        userId +
+        "C" +
+        cartId;
+    const purchaseDate = new Date().toISOString().slice(0, 10);
     const updateCartSql = "UPDATE cart SET paid = true, total = ? WHERE id = ?";
-    const insertBillSql = "INSERT INTO bills (cart_id, purchase_date, valid_purchase, payment_method) VALUES (?, ?, false, ?)";
+    const insertBillSql = "INSERT INTO bills (cart_id, purchase_date, valid_purchase, payment_method, reference_code) VALUES (?, ?, false, ?, ?)";
     const insertShippingSql = "INSERT INTO shipping (address, phone, bill_id) VALUES (?, ?, ?)";
     const insertNewCartSql = "INSERT INTO cart (user_id, total, paid) VALUES (?, 0, false)";
     return new Promise((resolve, reject) => {
@@ -125,7 +135,7 @@ const buyCart = (cartId, totalToPay, paymentMethod, userId, address, phone) => {
                     });
                 }
                 else {
-                    connection_1.default.query(insertBillSql, [cartId, purchaseDate, paymentMethod], (insertBillError, insertBillResult) => {
+                    connection_1.default.query(insertBillSql, [cartId, purchaseDate, paymentMethod, refPurchaseCod], (insertBillError, insertBillResult) => {
                         if (insertBillError) {
                             connection_1.default.rollback(() => {
                                 reject(insertBillError);
@@ -155,7 +165,10 @@ const buyCart = (cartId, totalToPay, paymentMethod, userId, address, phone) => {
                                                         });
                                                     }
                                                     else {
-                                                        resolve({ data: true });
+                                                        resolve({
+                                                            data: true,
+                                                            billReference: refPurchaseCod,
+                                                        });
                                                     }
                                                 });
                                             }
@@ -178,7 +191,10 @@ const buyCart = (cartId, totalToPay, paymentMethod, userId, address, phone) => {
                                                 });
                                             }
                                             else {
-                                                resolve({ data: true });
+                                                resolve({
+                                                    data: true,
+                                                    billReference: refPurchaseCod,
+                                                });
                                             }
                                         });
                                     }
@@ -192,3 +208,22 @@ const buyCart = (cartId, totalToPay, paymentMethod, userId, address, phone) => {
     });
 };
 exports.buyCart = buyCart;
+const removeProductFromCart = (cartId, productId) => {
+    const sql = `
+    DELETE FROM cart_elements
+    WHERE cart_id = ? AND product_id = ?;
+  `;
+    return new Promise((resolve, reject) => {
+        connection_1.default.query(sql, [cartId, productId], (err, result) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                // Check if any rows were affected (indicating a successful deletion)
+                const isDeleted = result.affectedRows > 0;
+                resolve({ data: isDeleted });
+            }
+        });
+    });
+};
+exports.removeProductFromCart = removeProductFromCart;

@@ -65,10 +65,15 @@ export const getCartElementsByUserId = (userId: number) => {
       if (err) {
         reject(err);
       } else {
-        console.log(result)
+        console.log(result);
         if (result.length === 0) {
           resolve({
-            data: { productList: [], cartId: null, cartPaid: null, cartTotal: null },
+            data: {
+              productList: [],
+              cartId: null,
+              cartPaid: null,
+              cartTotal: null,
+            },
           });
         } else {
           const cartId = result[0].cartId || 0;
@@ -121,12 +126,19 @@ export const buyCart = (
   address?: string,
   phone?: string
 ) => {
-  const purchaseDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+  const refPurchaseCod =
+    new Date().toISOString().replace(/[-:.]/g, "") +
+    "U" +
+    userId +
+    "C" +
+    cartId;
+
+  const purchaseDate = new Date().toISOString().slice(0, 10);
 
   const updateCartSql = "UPDATE cart SET paid = true, total = ? WHERE id = ?";
 
   const insertBillSql =
-    "INSERT INTO bills (cart_id, purchase_date, valid_purchase, payment_method) VALUES (?, ?, false, ?)";
+    "INSERT INTO bills (cart_id, purchase_date, valid_purchase, payment_method, reference_code) VALUES (?, ?, false, ?, ?)";
 
   const insertShippingSql =
     "INSERT INTO shipping (address, phone, bill_id) VALUES (?, ?, ?)";
@@ -152,7 +164,7 @@ export const buyCart = (
           } else {
             connection.query(
               insertBillSql,
-              [cartId, purchaseDate, paymentMethod],
+              [cartId, purchaseDate, paymentMethod, refPurchaseCod],
               (insertBillError, insertBillResult) => {
                 if (insertBillError) {
                   connection.rollback(() => {
@@ -186,7 +198,10 @@ export const buyCart = (
                                       reject(commitError);
                                     });
                                   } else {
-                                    resolve({ data: true });
+                                    resolve({
+                                      data: true,
+                                      billReference: refPurchaseCod,
+                                    });
                                   }
                                 });
                               }
@@ -211,7 +226,10 @@ export const buyCart = (
                                 reject(commitError);
                               });
                             } else {
-                              resolve({ data: true });
+                              resolve({
+                                data: true,
+                                billReference: refPurchaseCod,
+                              });
                             }
                           });
                         }
@@ -224,6 +242,25 @@ export const buyCart = (
           }
         }
       );
+    });
+  });
+};
+
+export const removeProductFromCart = (cartId: number, productId: number) => {
+  const sql = `
+    DELETE FROM cart_elements
+    WHERE cart_id = ? AND product_id = ?;
+  `;
+
+  return new Promise((resolve, reject) => {
+    connection.query(sql, [cartId, productId], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        // Check if any rows were affected (indicating a successful deletion)
+        const isDeleted = result.affectedRows > 0;
+        resolve({ data: isDeleted });
+      }
     });
   });
 };

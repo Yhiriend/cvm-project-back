@@ -46,3 +46,14 @@ export const buyUserCart = async (req: Request, res: Response) => {
     res.status(500).json({ error: error });
   }
 };
+
+export const removeProductFromUserCart = async (req: Request, res: Response) => {
+  try {
+    const { cartId, productId } = req.body;
+    const result = await CartRepository.removeProductFromCart(cartId, productId);
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error });
+  }
+};

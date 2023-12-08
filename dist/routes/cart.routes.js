@@ -7,4 +7,5 @@ router.post("/saveincart", cart_controller_1.saveProductInCart);
 router.post("/getcart", cart_controller_1.getCart);
 router.post("/getcart-by-userid", cart_controller_1.getByUserId);
 router.post("/buycart", cart_controller_1.buyUserCart);
+router.post("/removeproduct", cart_controller_1.removeProductFromUserCart);
 exports.default = router;

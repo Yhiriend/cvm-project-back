@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buyUserCart = exports.getByUserId = exports.getCart = exports.saveProductInCart = void 0;
+exports.removeProductFromUserCart = exports.buyUserCart = exports.getByUserId = exports.getCart = exports.saveProductInCart = void 0;
 const CartRepository = __importStar(require("../repository/cart.repository"));
 const saveProductInCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -82,3 +82,15 @@ const buyUserCart = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.buyUserCart = buyUserCart;
+const removeProductFromUserCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { cartId, productId } = req.body;
+        const result = yield CartRepository.removeProductFromCart(cartId, productId);
+        res.json(result);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ error: error });
+    }
+});
+exports.removeProductFromUserCart = removeProductFromUserCart;

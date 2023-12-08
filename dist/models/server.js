@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const connection_1 = __importDefault(require("../db/connection"));
 const product_routes_1 = __importDefault(require("../routes/product.routes"));
 const cart_routes_1 = __importDefault(require("../routes/cart.routes"));
+const review_request_routes_1 = __importDefault(require("../routes/review-request.routes"));
 const default_routes_1 = __importDefault(require("../routes/default.routes"));
 const user_routes_1 = __importDefault(require("../routes/user.routes"));
 const cors_1 = __importDefault(require("cors"));
@@ -37,6 +38,7 @@ class Server {
     routes() {
         this.app.use("/", default_routes_1.default);
         this.app.use("/api/cart", cart_routes_1.default);
+        this.app.use("/api/reviewrequest", review_request_routes_1.default);
         this.app.use("/api/products", product_routes_1.default);
         this.app.use("/auth/users", user_routes_1.default);
     }

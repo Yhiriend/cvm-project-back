@@ -4,7 +4,7 @@ import { mapDbProductToProduct } from "../utils/adapters/product.mappers";
 
 export const getNewest = () => {
   const sql =
-    "SELECT * FROM products ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC LIMIT 10";
+    "SELECT * FROM products WHERE products.available = 1 ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC LIMIT 10";
   return new Promise((resolve, reject) => {
     connection.query(sql, (err, result) => {
       if (err) {
@@ -26,7 +26,7 @@ export const getNewest = () => {
 export const searchProducts = (keywords: string) => {
   const sql = `
     SELECT * FROM products
-    WHERE brand LIKE '%${keywords}%' ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC`;
+    WHERE available = 1 AND brand LIKE '%${keywords}%' ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC`;
 
   return new Promise((resolve, reject) => {
     connection.query(sql, (err, result) => {

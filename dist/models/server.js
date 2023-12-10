@@ -28,7 +28,6 @@ class Server {
     }
     connectDB() {
         connection_1.default.connect((err) => {
-            console.log("DATA ENV: ", process.env.HOST_BD);
             if (err) {
                 console.log(err);
             }

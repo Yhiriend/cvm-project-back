@@ -13,7 +13,7 @@ export const insertProductIntoCart = (cartId: number, productId: number) => {
     connection.query(
       checkIfExistsSql,
       [productId, cartId],
-      (checkError, checkResult) => {
+      (checkError, checkResult: any) => {
         if (checkError) {
           reject(checkError);
         } else {
@@ -30,7 +30,7 @@ export const insertProductIntoCart = (cartId: number, productId: number) => {
             connection.query(
               insertSql,
               [productId, cartId],
-              (insertError, insertResult) => {
+              (insertError, insertResult: any) => {
                 if (insertError) {
                   reject(insertError);
                 } else {
@@ -61,7 +61,7 @@ export const getCartElementsByUserId = (userId: number) => {
   `;
 
   return new Promise((resolve, reject) => {
-    connection.query(sql, [userId], (err, result) => {
+    connection.query(sql, [userId], (err, result: any) => {
       if (err) {
         reject(err);
       } else {
@@ -98,7 +98,7 @@ export const getCartByUserId = (userId: number) => {
   const sql = "SELECT * FROM cart WHERE user_id = ? AND paid = 0 LIMIT 1";
 
   return new Promise((resolve, reject) => {
-    connection.query(sql, [userId], (err, result) => {
+    connection.query(sql, [userId], (err, result: any) => {
       if (err) {
         reject(err);
       } else {
@@ -201,7 +201,7 @@ export const buyCart = (
                 paymentType,
                 refPurchaseCod,
               ],
-          (insertBillError, insertBillResult) => {
+          (insertBillError, insertBillResult: any) => {
             if (insertBillError) {
               connection.rollback(() => {
                 reject(insertBillError);
@@ -288,7 +288,7 @@ export const removeProductFromCart = (cartId: number, productId: number) => {
   `;
 
   return new Promise((resolve, reject) => {
-    connection.query(sql, [cartId, productId], (err, result) => {
+    connection.query(sql, [cartId, productId], (err, result: any) => {
       if (err) {
         reject(err);
       } else {

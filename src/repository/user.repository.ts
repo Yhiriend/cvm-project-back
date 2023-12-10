@@ -13,7 +13,7 @@ export const login = async (email: string, password: string) => {
   const sql = "SELECT * FROM users WHERE email = ?";
 
   return new Promise((resolve, reject) => {
-    connection.query(sql, [email], async (err, result) => {
+    connection.query(sql, [email], async (err, result: any) => {
       if (err) {
         reject(err);
       } else {
@@ -69,7 +69,7 @@ export const signIn = async (user: User) => {
           connection.query(
             "INSERT INTO users SET ?",
             dbUser,
-            async (err, data) => {
+            async (err, data: any) => {
               if (err) {
                 connection.rollback(() => {
                   reject(err.message);
@@ -82,7 +82,7 @@ export const signIn = async (user: User) => {
                     connection.query(
                       "INSERT INTO cart SET user_id = ?, total = 0, paid = false",
                       [userId],
-                      (cartErr, cartData) => {
+                      (cartErr, cartData: any) => {
                         if (cartErr) {
                           connection.rollback(() => {
                             cartReject(cartErr.message);
@@ -117,7 +117,7 @@ export const signIn = async (user: User) => {
 
     const selectResult = await new Promise<any>((resolve, reject) => {
       const sql = "SELECT * FROM users WHERE id = ?";
-      connection.query(sql, [insertResult], (err, data) => {
+      connection.query(sql, [insertResult], (err, data: any) => {
         if (err) {
           reject(err.message);
         } else {
@@ -147,7 +147,7 @@ export const update = async (user: User, newPassword: string) => {
     connection.query(
       "SELECT * FROM users WHERE id = ?",
       [user.id],
-      (err, result) => {
+      (err, result: any) => {
         if (err) {
           reject(err.message);
         } else {
@@ -171,7 +171,7 @@ export const update = async (user: User, newPassword: string) => {
                         connection.query(
                           "UPDATE users SET ? WHERE id = ?",
                           [updateData, user.id],
-                          (err, data) => {
+                          (err, data: any) => {
                             if (err) {
                               reject(err.message);
                             } else {

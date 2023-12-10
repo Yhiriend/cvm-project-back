@@ -17,7 +17,6 @@ const product_facade_1 = __importDefault(require("../facades/product.facade"));
 const getNewestProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const result = yield product_facade_1.default.getNewestProducts();
-        console.log(result);
         res.json(result);
     }
     catch (error) {
@@ -30,7 +29,6 @@ const searchProducts = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const keywords = req.body.keywords || "";
         const result = yield product_facade_1.default.searchProducts(keywords);
-        console.log(result);
         res.json(result);
     }
     catch (error) {

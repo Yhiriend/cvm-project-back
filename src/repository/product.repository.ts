@@ -6,7 +6,7 @@ export const getNewest = () => {
   const sql =
     "SELECT * FROM products WHERE products.available = 1 ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC LIMIT 10";
   return new Promise((resolve, reject) => {
-    connection.query(sql, (err, result) => {
+    connection.query(sql, (err, result: any) => {
       if (err) {
         reject(err);
       } else {
@@ -29,7 +29,7 @@ export const searchProducts = (keywords: string) => {
     WHERE available = 1 AND brand LIKE '%${keywords}%' ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC`;
 
   return new Promise((resolve, reject) => {
-    connection.query(sql, (err, result) => {
+    connection.query(sql, (err, result: any) => {
       if (err) {
         reject(err);
       } else {

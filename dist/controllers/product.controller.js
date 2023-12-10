@@ -8,32 +8,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchProducts = exports.getNewestProducts = void 0;
-const product_facade_1 = __importDefault(require("../facades/product.facade"));
-const getNewestProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const result = yield product_facade_1.default.getNewestProducts();
-        res.json(result);
+class ProductController {
+    constructor(productFacade) {
+        this.productFacade = productFacade;
     }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error });
+    getNewestProducts(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this.productFacade.getNewestProducts();
+                res.json(result);
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ error: error });
+            }
+        });
     }
-});
-exports.getNewestProducts = getNewestProducts;
-const searchProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const keywords = req.body.keywords || "";
-        const result = yield product_facade_1.default.searchProducts(keywords);
-        res.json(result);
+    searchProducts(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const keywords = req.body.keywords || "";
+                const result = yield this.productFacade.searchProducts(keywords);
+                res.json(result);
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ error: error });
+            }
+        });
     }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error });
-    }
-});
-exports.searchProducts = searchProducts;
+}
+exports.default = ProductController;

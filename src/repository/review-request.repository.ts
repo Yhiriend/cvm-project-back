@@ -5,25 +5,29 @@ import {
   mapReviewRequestToDb,
 } from "../utils/adapters/review-request.mappers";
 
-export const saveNewReviewRequest = async (reviewRequest: ReviewRequest) => {
-  try {
-    const mappedReviewRequest: DbReviewRequest = await mapReviewRequestToDb(
-      reviewRequest
-    );
+export default class ReviewRequestRepository {
+  constructor() {}
 
-    const sql = "INSERT INTO review_requests SET ?";
+  async saveNewReviewRequest(reviewRequest: ReviewRequest) {
+    try {
+      const mappedReviewRequest: DbReviewRequest = await mapReviewRequestToDb(
+        reviewRequest
+      );
 
-    return new Promise((resolve, reject) => {
-      connection.query(sql, mappedReviewRequest, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve({ data: true });
-        }
+      const sql = "INSERT INTO review_requests SET ?";
+
+      return new Promise((resolve, reject) => {
+        connection.query(sql, mappedReviewRequest, (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ data: true });
+          }
+        });
       });
-    });
-  } catch (error: any) {
-    console.error(error.message);
-    throw error;
+    } catch (error: any) {
+      console.error(error.message);
+      throw error;
+    }
   }
-};
+}

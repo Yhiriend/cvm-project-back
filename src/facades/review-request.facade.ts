@@ -1,15 +1,17 @@
-import * as ReviewRequestRepository from '../repository/review-request.repository';
-import { ReviewRequest } from '../models/review-request.type';
+import ReviewRequestRepository from "../repository/review-request.repository";
+import { ReviewRequest } from "../models/review-request.type";
 
-class ReviewRequestFacade {
+export default class ReviewRequestFacade {
+  constructor(private reviewRequestRepository: ReviewRequestRepository) {}
+
   async saveNewReviewRequest(reviewRequest: ReviewRequest) {
     try {
-      return await ReviewRequestRepository.saveNewReviewRequest(reviewRequest);
+      return await this.reviewRequestRepository.saveNewReviewRequest(
+        reviewRequest
+      );
     } catch (error) {
       console.error(error);
-      throw new Error('Error during saveNewReviewRequest process');
+      throw new Error("Error during saveNewReviewRequest process");
     }
   }
 }
-
-export default new ReviewRequestFacade();

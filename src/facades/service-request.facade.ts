@@ -1,10 +1,12 @@
-import * as ServiceRequestRepository from "../repository/service-request.repository";
+import ServiceRequestRepository from "../repository/service-request.repository";
 import { ServiceRequest } from "../models/service-request/service-request.type";
 
-class ServiceRequestFacade {
+export default class ServiceRequestFacade {
+  constructor(private serviceRequestRepository: ServiceRequestRepository) {}
+
   async saveNewServiceRequest(serviceRequest: ServiceRequest) {
     try {
-      return await ServiceRequestRepository.saveNewServiceRequest(
+      return await this.serviceRequestRepository.saveNewServiceRequest(
         serviceRequest
       );
     } catch (error) {
@@ -13,5 +15,3 @@ class ServiceRequestFacade {
     }
   }
 }
-
-export default new ServiceRequestFacade();

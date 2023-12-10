@@ -8,69 +8,75 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeProductFromUserCart = exports.buyUserCart = exports.getByUserId = exports.getCart = exports.saveProductInCart = void 0;
-const cart_facade_1 = __importDefault(require("../facades/cart.facade"));
-const saveProductInCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { cartId, productId } = req.body;
-        const result = yield cart_facade_1.default.insertProductIntoCart(cartId, productId);
-        res.json(result);
+class CartController {
+    constructor(cartFacade) {
+        this.cartFacade = cartFacade;
     }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error });
+    saveProductInCart(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { cartId, productId } = req.body;
+                const result = yield this.cartFacade.insertProductIntoCart(cartId, productId);
+                res.json(result);
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ error: error });
+            }
+        });
     }
-});
-exports.saveProductInCart = saveProductInCart;
-const getCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { userId } = req.body;
-        const result = yield cart_facade_1.default.getCartElementsByUserId(userId);
-        res.json(result);
+    getCart(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { userId } = req.body;
+                const result = yield this.cartFacade.getCartElementsByUserId(userId);
+                res.json(result);
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ error: error });
+            }
+        });
     }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error });
+    getByUserId(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { userId } = req.body;
+                const result = yield this.cartFacade.getCartByUserId(userId);
+                res.json(result);
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ error: error });
+            }
+        });
     }
-});
-exports.getCart = getCart;
-const getByUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { userId } = req.body;
-        const result = yield cart_facade_1.default.getCartByUserId(userId);
-        res.json(result);
+    buyUserCart(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { cartId, totalToPay, paymentMethod, paymentType, address, phone, userId, } = req.body;
+                const result = yield this.cartFacade.buyCart(cartId, totalToPay, paymentMethod, paymentType, userId, address, phone);
+                res.json(result);
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ error: error });
+            }
+        });
     }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error });
+    removeProductFromUserCart(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { cartId, productId } = req.body;
+                const result = yield this.cartFacade.removeProductFromCart(cartId, productId);
+                res.json(result);
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ error: error });
+            }
+        });
     }
-});
-exports.getByUserId = getByUserId;
-const buyUserCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { cartId, totalToPay, paymentMethod, paymentType, address, phone, userId, } = req.body;
-        const result = yield cart_facade_1.default.buyCart(cartId, totalToPay, paymentMethod, paymentType, userId, address, phone);
-        res.json(result);
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error });
-    }
-});
-exports.buyUserCart = buyUserCart;
-const removeProductFromUserCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { cartId, productId } = req.body;
-        const result = yield cart_facade_1.default.removeProductFromCart(cartId, productId);
-        res.json(result);
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error });
-    }
-});
-exports.removeProductFromUserCart = removeProductFromUserCart;
+}
+exports.default = CartController;

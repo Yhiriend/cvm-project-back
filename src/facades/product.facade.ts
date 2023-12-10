@@ -1,9 +1,11 @@
-import * as ProductRepository from "../repository/product.repository";
+import ProductRepository from "../repository/product.repository";
 
-class ProductFacade {
+export default class ProductFacade {
+  constructor(private productRepository: ProductRepository) {}
+
   async getNewestProducts() {
     try {
-      return await ProductRepository.getNewest();
+      return await this.productRepository.getNewest();
     } catch (error) {
       console.error(error);
       throw new Error("Error during getNewestProducts process");
@@ -12,12 +14,10 @@ class ProductFacade {
 
   async searchProducts(keywords: string) {
     try {
-      return await ProductRepository.searchProducts(keywords);
+      return await this.productRepository.searchProducts(keywords);
     } catch (error) {
       console.error(error);
       throw new Error("Error during searchProducts process");
     }
   }
 }
-
-export default new ProductFacade();

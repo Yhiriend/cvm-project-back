@@ -1,9 +1,11 @@
-import * as CartRepository from "../repository/cart.repository";
+import CartRepository from "../repository/cart.repository";
 
-class CartFacade {
+export default class CartFacade {
+  constructor(private cartRepository: CartRepository) {}
+
   async insertProductIntoCart(cartId: number, productId: number) {
     try {
-      return await CartRepository.insertProductIntoCart(cartId, productId);
+      return await this.cartRepository.insertProductIntoCart(cartId, productId);
     } catch (error) {
       console.error(error);
       throw new Error("Error during insertProductIntoCart process");
@@ -12,7 +14,7 @@ class CartFacade {
 
   async getCartElementsByUserId(userId: number) {
     try {
-      return await CartRepository.getCartElementsByUserId(userId);
+      return await this.cartRepository.getCartElementsByUserId(userId);
     } catch (error) {
       console.error(error);
       throw new Error("Error during getCartElementsByUserId process");
@@ -21,7 +23,7 @@ class CartFacade {
 
   async getCartByUserId(userId: number) {
     try {
-      return await CartRepository.getCartByUserId(userId);
+      return await this.cartRepository.getCartByUserId(userId);
     } catch (error) {
       console.error(error);
       throw new Error("Error during getCartByUserId process");
@@ -38,7 +40,7 @@ class CartFacade {
     phone?: string
   ) {
     try {
-      return await CartRepository.buyCart(
+      return await this.cartRepository.buyCart(
         cartId,
         totalToPay,
         paymentMethod,
@@ -55,12 +57,10 @@ class CartFacade {
 
   async removeProductFromCart(cartId: number, productId: number) {
     try {
-      return await CartRepository.removeProductFromCart(cartId, productId);
+      return await this.cartRepository.removeProductFromCart(cartId, productId);
     } catch (error) {
       console.error(error);
       throw new Error("Error during removeProductFromCart process");
     }
   }
 }
-
-export default new CartFacade();

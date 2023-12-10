@@ -1,42 +1,44 @@
-import * as UserRepository from '../repository/user.repository';
-import { User } from '../models/user.type';
+//import * as UserRepository from '../repository/user.repository';
+import UserRepository from "../repository/user.repository";
+import { User } from "../models/user.type";
 
-class UserFacade {
+export default class UserFacade {
+  constructor(private userRepository: UserRepository) {}
+
   async signIn(user: User) {
     try {
-      return await UserRepository.signIn(user);
+      return await this.userRepository.signIn(user);
     } catch (error) {
       console.error(error);
-      throw new Error('Error during sign-in process');
+      throw new Error("Error during sign-in process");
     }
   }
 
   async loginUser(email: string, password: string) {
     try {
-      return await UserRepository.login(email, password);
+      return await this.userRepository.login(email, password);
     } catch (error) {
       console.error(error);
-      throw new Error('Error during login process');
+      throw new Error("Error during login process");
     }
   }
 
   async updateUser(user: User, newPassword: string) {
     try {
-      return await UserRepository.update(user, newPassword);
+      return await this.userRepository.update(user, newPassword);
     } catch (error) {
       console.error(error);
-      throw new Error('Error during update process');
+      throw new Error("Error during update process");
     }
   }
 
-  getUserFromToken(token: string) {
+  async getUserFromToken(token: string) {
     try {
-      return UserRepository.getUser(token);
+      return await this.userRepository.getUser(token);
     } catch (error) {
       console.error(error);
-      throw new Error('Error during getUserFromToken process');
+      throw new Error("Error during getUserFromToken process");
     }
   }
 }
 
-export default new UserFacade();

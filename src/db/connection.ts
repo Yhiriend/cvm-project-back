@@ -1,4 +1,4 @@
-import mysql from "mysql";
+import mysql from "mysql2";
 
 class DatabaseConnection {
   private static instance: DatabaseConnection;
@@ -6,10 +6,14 @@ class DatabaseConnection {
 
   private constructor() {
     this.connection = mysql.createConnection({
-      host: "localhost",
+      port: 55139,
+      host: "monorail.proxy.rlwy.net",//"localhost",
       user: "root",
-      password: "",
-      database: "cvm-database",
+      password: "Gb2Fga-Cd2HfG-fD-c65gg-31beFGfBd",
+      database: "railway",//"cvm-database",
+      authPlugins: {
+        mysql_clear_password: () => () => Buffer.from(process.env.PASSWORD_BD + "\0"),
+      },
     });
   }
 

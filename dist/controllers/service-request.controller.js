@@ -12,12 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveReviewRequest = void 0;
-const review_request_facade_1 = __importDefault(require("../facades/review-request.facade"));
-const saveReviewRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.saveServiceRequest = void 0;
+const service_request_facade_1 = __importDefault(require("../facades/service-request.facade"));
+const saveServiceRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const reviewRequest = req.body;
     try {
-        const result = yield review_request_facade_1.default.saveNewReviewRequest(reviewRequest);
+        const result = yield service_request_facade_1.default.saveNewServiceRequest(reviewRequest);
         res.json(result);
     }
     catch (err) {
@@ -30,4 +30,4 @@ const saveReviewRequest = (req, res) => __awaiter(void 0, void 0, void 0, functi
         //connection.end();
     }
 });
-exports.saveReviewRequest = saveReviewRequest;
+exports.saveServiceRequest = saveServiceRequest;

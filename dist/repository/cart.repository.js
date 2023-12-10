@@ -111,46 +111,80 @@ const getCartByUserId = (userId) => {
     });
 };
 exports.getCartByUserId = getCartByUserId;
-const buyCart = (cartId, totalToPay, paymentMethod, userId, address, phone) => {
+const buyCart = (cartId, totalToPay, paymentMethod, paymentType, userId, address, phone) => {
+    let userIdAdapted;
+    let cartIdAdapted;
+    if (!userId) {
+        userIdAdapted = 0;
+        cartIdAdapted = 0;
+    }
+    else {
+        userIdAdapted = userId;
+        cartIdAdapted = cartId;
+    }
     const refPurchaseCod = new Date().toISOString().replace(/[-:.]/g, "") +
         "U" +
-        userId +
+        userIdAdapted +
         "C" +
-        cartId;
+        cartIdAdapted;
     const purchaseDate = new Date().toISOString().slice(0, 10);
-    const updateCartSql = "UPDATE cart SET paid = true, total = ? WHERE id = ?";
-    const insertBillSql = "INSERT INTO bills (cart_id, purchase_date, valid_purchase, payment_method, reference_code) VALUES (?, ?, false, ?, ?)";
+    const updateCartSql = userId === null
+        ? null
+        : "UPDATE cart SET paid = true, total = ? WHERE id = ?";
+    const insertBillSql = userId === null
+        ? "INSERT INTO bills (reference_code, cart_id, purchase_date, valid_purchase, payment_method, payment_type) VALUES (?, NULL, ?, false, ?, ?)"
+        : "INSERT INTO bills (cart_id, purchase_date, valid_purchase, payment_method, payment_type, reference_code) VALUES (?, ?, false, ?, ?, ?)";
     const insertShippingSql = "INSERT INTO shipping (address, phone, bill_id) VALUES (?, ?, ?)";
-    const insertNewCartSql = "INSERT INTO cart (user_id, total, paid) VALUES (?, 0, false)";
+    const insertNewCartSql = userId === null
+        ? null
+        : "INSERT INTO cart (user_id, total, paid) VALUES (?, 0, false)";
     return new Promise((resolve, reject) => {
         connection_1.default.beginTransaction((transactionError) => {
             if (transactionError) {
                 reject(transactionError);
                 return;
             }
-            connection_1.default.query(updateCartSql, [totalToPay, cartId], (updateCartError, updateCartResult) => {
-                if (updateCartError) {
-                    connection_1.default.rollback(() => {
-                        reject(updateCartError);
-                    });
-                }
-                else {
-                    connection_1.default.query(insertBillSql, [cartId, purchaseDate, paymentMethod, refPurchaseCod], (insertBillError, insertBillResult) => {
-                        if (insertBillError) {
-                            connection_1.default.rollback(() => {
-                                reject(insertBillError);
-                            });
-                        }
-                        else {
-                            const billId = insertBillResult.insertId;
-                            if (address && phone) {
-                                connection_1.default.query(insertShippingSql, [address, phone, billId], (insertShippingError) => {
-                                    if (insertShippingError) {
-                                        connection_1.default.rollback(() => {
-                                            reject(insertShippingError);
-                                        });
-                                    }
-                                    else {
+            if (updateCartSql) {
+                connection_1.default.query(updateCartSql, [totalToPay, cartId], (updateCartError, updateCartResult) => {
+                    if (updateCartError) {
+                        connection_1.default.rollback(() => {
+                            reject(updateCartError);
+                        });
+                    }
+                    else {
+                        executeInsertions();
+                    }
+                });
+            }
+            else {
+                executeInsertions();
+            }
+            function executeInsertions() {
+                connection_1.default.query(insertBillSql, userId === null
+                    ? [refPurchaseCod, purchaseDate, paymentMethod, paymentType]
+                    : [
+                        cartId,
+                        purchaseDate,
+                        paymentMethod,
+                        paymentType,
+                        refPurchaseCod,
+                    ], (insertBillError, insertBillResult) => {
+                    if (insertBillError) {
+                        connection_1.default.rollback(() => {
+                            reject(insertBillError);
+                        });
+                    }
+                    else {
+                        const billId = insertBillResult.insertId;
+                        if (address && phone) {
+                            connection_1.default.query(insertShippingSql, [address, phone, billId], (insertShippingError) => {
+                                if (insertShippingError) {
+                                    connection_1.default.rollback(() => {
+                                        reject(insertShippingError);
+                                    });
+                                }
+                                else {
+                                    if (insertNewCartSql) {
                                         connection_1.default.query(insertNewCartSql, [userId], (insertNewCartError) => {
                                             if (insertNewCartError) {
                                                 connection_1.default.rollback(() => {
@@ -158,25 +192,18 @@ const buyCart = (cartId, totalToPay, paymentMethod, userId, address, phone) => {
                                                 });
                                             }
                                             else {
-                                                connection_1.default.commit((commitError) => {
-                                                    if (commitError) {
-                                                        connection_1.default.rollback(() => {
-                                                            reject(commitError);
-                                                        });
-                                                    }
-                                                    else {
-                                                        resolve({
-                                                            data: true,
-                                                            billReference: refPurchaseCod,
-                                                        });
-                                                    }
-                                                });
+                                                commitTransaction();
                                             }
                                         });
                                     }
-                                });
-                            }
-                            else {
+                                    else {
+                                        commitTransaction();
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            if (insertNewCartSql) {
                                 connection_1.default.query(insertNewCartSql, [userId], (insertNewCartError) => {
                                     if (insertNewCartError) {
                                         connection_1.default.rollback(() => {
@@ -184,26 +211,32 @@ const buyCart = (cartId, totalToPay, paymentMethod, userId, address, phone) => {
                                         });
                                     }
                                     else {
-                                        connection_1.default.commit((commitError) => {
-                                            if (commitError) {
-                                                connection_1.default.rollback(() => {
-                                                    reject(commitError);
-                                                });
-                                            }
-                                            else {
-                                                resolve({
-                                                    data: true,
-                                                    billReference: refPurchaseCod,
-                                                });
-                                            }
-                                        });
+                                        commitTransaction();
                                     }
                                 });
                             }
+                            else {
+                                commitTransaction();
+                            }
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
+            function commitTransaction() {
+                connection_1.default.commit((commitError) => {
+                    if (commitError) {
+                        connection_1.default.rollback(() => {
+                            reject(commitError);
+                        });
+                    }
+                    else {
+                        resolve({
+                            data: true,
+                            billReference: refPurchaseCod,
+                        });
+                    }
+                });
+            }
         });
     });
 };
@@ -219,7 +252,6 @@ const removeProductFromCart = (cartId, productId) => {
                 reject(err);
             }
             else {
-                // Check if any rows were affected (indicating a successful deletion)
                 const isDeleted = result.affectedRows > 0;
                 resolve({ data: isDeleted });
             }

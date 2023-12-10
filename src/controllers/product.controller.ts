@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import * as ProductRepository from "../repository/product.repository";
+import ProductFacade from "../facades/product.facade";
 
 export const getNewestProducts = async (req: Request, res: Response) => {
   try {
-    const result = await ProductRepository.getNewest();
+    const result = await ProductFacade.getNewestProducts();
     console.log(result);
     res.json(result);
   } catch (error) {
@@ -14,8 +14,8 @@ export const getNewestProducts = async (req: Request, res: Response) => {
 
 export const searchProducts = async (req: Request, res: Response) => {
   try {
-    const keywords: string = req.body.keywords || '';
-    const result = await ProductRepository.searchProducts(keywords);
+    const keywords: string = req.body.keywords || "";
+    const result = await ProductFacade.searchProducts(keywords);
     console.log(result);
     res.json(result);
   } catch (error) {

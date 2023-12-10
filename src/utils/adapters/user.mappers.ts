@@ -19,8 +19,8 @@ export const mapUserToDb = async (user: User): Promise<DbUser> => {
   const hashedPassword = await bcrypt.hash(user.password!, 10);
 
   return {
-    name: user.name,
-    surname: user.surname,
+    name: user.name.toUpperCase(),
+    surname: user.surname.toUpperCase(),
     password: hashedPassword,
     email: user.email,
     address: user.address,

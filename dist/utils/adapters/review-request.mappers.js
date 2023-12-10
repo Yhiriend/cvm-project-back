@@ -9,16 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mapDbToReviewRequest = exports.mapReviewRequestToDb = exports.getCurrentDate = void 0;
-const getCurrentDate = () => {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-    const day = String(currentDate.getDate()).padStart(2, "0");
-    const formattedDate = `${year}-${month}-${day}`;
-    return formattedDate;
-};
-exports.getCurrentDate = getCurrentDate;
+exports.mapDbToReviewRequest = exports.mapReviewRequestToDb = void 0;
+const time_helper_1 = require("../time-helper");
 const mapReviewRequestToDb = (reviewRequest) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
     return {
@@ -34,7 +26,7 @@ const mapReviewRequestToDb = (reviewRequest) => __awaiter(void 0, void 0, void 0
         customer_surname: reviewRequest.customerSurname,
         customer_address: reviewRequest.customerAddress,
         customer_phone: reviewRequest.customerPhone,
-        request_date: (0, exports.getCurrentDate)(),
+        request_date: (0, time_helper_1.getCurrentDate)(),
     };
 });
 exports.mapReviewRequestToDb = mapReviewRequestToDb;

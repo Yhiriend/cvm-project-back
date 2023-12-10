@@ -3,6 +3,7 @@ import connection from "../db/connection";
 import routesProduct from "../routes/product.routes";
 import routesCart from "../routes/cart.routes";
 import routesReviewRequest from "../routes/review-request.routes";
+import routesServiceRequest from "../routes/service-request.routes";
 import routesDefault from "../routes/default.routes";
 import routesUser from "../routes/user.routes";
 import cors from "cors";
@@ -40,6 +41,7 @@ class Server {
     this.app.use("/", routesDefault);
     this.app.use("/api/cart", routesCart);
     this.app.use("/api/reviewrequest", routesReviewRequest);
+    this.app.use("/api/servicerequest", routesServiceRequest);
     this.app.use("/api/products", routesProduct);
     this.app.use("/auth/users", routesUser);
   }

@@ -1,16 +1,13 @@
 import connection from "../db/connection";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import convertMinutesToMillis from "../utils/time-converter";
 import { User } from "../models/user.type";
 import {
   DbUser,
   mapDbUserToUser,
   mapUserToDb,
 } from "../utils/adapters/user.mappers";
-
-
-const EXPIRATION_TIME = convertMinutesToMillis(60);
+import { convertMinutesInMillis } from "../utils/time-helper";
 
 export const login = async (email: string, password: string) => {
   const sql = "SELECT * FROM users WHERE email = ?";
@@ -35,7 +32,7 @@ export const login = async (email: string, password: string) => {
                 mapDbUserToUser(data),
                 process.env.SECRET_KEY!,
                 {
-                  expiresIn: EXPIRATION_TIME.toString(),
+                  expiresIn: convertMinutesInMillis(60).toString(),
                 }
               );
 
@@ -62,11 +59,58 @@ export const signIn = async (user: User) => {
     const dbUser = await mapUserToDb(user);
 
     const insertResult = await new Promise<number>((resolve, reject) => {
-      connection.query("INSERT INTO users SET ?", dbUser, (err, data) => {
-        if (err) {
-          reject(err.message);
-        } else {
-          resolve(data.insertId);
+      connection.beginTransaction(async (transactionError) => {
+        if (transactionError) {
+          reject(transactionError);
+          return;
+        }
+
+        try {
+          connection.query(
+            "INSERT INTO users SET ?",
+            dbUser,
+            async (err, data) => {
+              if (err) {
+                connection.rollback(() => {
+                  reject(err.message);
+                });
+              } else {
+                const userId = data.insertId;
+
+                const cartInsertResult = await new Promise<number>(
+                  (cartResolve, cartReject) => {
+                    connection.query(
+                      "INSERT INTO cart SET user_id = ?, total = 0, paid = false",
+                      [userId],
+                      (cartErr, cartData) => {
+                        if (cartErr) {
+                          connection.rollback(() => {
+                            cartReject(cartErr.message);
+                          });
+                        } else {
+                          cartResolve(cartData.insertId);
+                        }
+                      }
+                    );
+                  }
+                );
+
+                connection.commit((commitError) => {
+                  if (commitError) {
+                    connection.rollback(() => {
+                      reject(commitError);
+                    });
+                  } else {
+                    resolve(userId);
+                  }
+                });
+              }
+            }
+          );
+        } catch (error: any) {
+          connection.rollback(() => {
+            reject(error.message);
+          });
         }
       });
     });
@@ -80,10 +124,10 @@ export const signIn = async (user: User) => {
           if (data.length > 0) {
             const dataMapped: User = mapDbUserToUser(data[0]);
             const token = jwt.sign(dataMapped, process.env.SECRET_KEY!, {
-              expiresIn: EXPIRATION_TIME.toString(),
+              expiresIn: convertMinutesInMillis(60).toString(),
             });
             delete dataMapped.password;
-            resolve({ token: token, data: dataMapped });
+            resolve({ token, data: dataMapped });
           } else {
             reject("User not found");
           }
@@ -173,8 +217,8 @@ export const getUser = (token: string): any | null => {
     if (decodedToken) {
       delete decodedToken.password;
       const response = {
-        data: mapDbUserToUser(decodedToken)
-      }
+        data: mapDbUserToUser(decodedToken),
+      };
       return response;
     }
 

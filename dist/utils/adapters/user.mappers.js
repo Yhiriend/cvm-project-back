@@ -17,8 +17,8 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const mapUserToDb = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const hashedPassword = yield bcrypt_1.default.hash(user.password, 10);
     return {
-        name: user.name,
-        surname: user.surname,
+        name: user.name.toUpperCase(),
+        surname: user.surname.toUpperCase(),
         password: hashedPassword,
         email: user.email,
         address: user.address,

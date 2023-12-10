@@ -16,9 +16,8 @@ exports.getUser = exports.update = exports.signIn = exports.login = void 0;
 const connection_1 = __importDefault(require("../db/connection"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const time_converter_1 = __importDefault(require("../utils/time-converter"));
 const user_mappers_1 = require("../utils/adapters/user.mappers");
-const EXPIRATION_TIME = (0, time_converter_1.default)(60);
+const time_helper_1 = require("../utils/time-helper");
 const login = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
     const sql = "SELECT * FROM users WHERE email = ?";
     return new Promise((resolve, reject) => {
@@ -38,7 +37,7 @@ const login = (email, password) => __awaiter(void 0, void 0, void 0, function* (
                         const passwordMatch = yield bcrypt_1.default.compare(password, userPassword);
                         if (passwordMatch) {
                             const token = jsonwebtoken_1.default.sign((0, user_mappers_1.mapDbUserToUser)(data), process.env.SECRET_KEY, {
-                                expiresIn: EXPIRATION_TIME.toString(),
+                                expiresIn: (0, time_helper_1.convertMinutesInMillis)(60).toString(),
                             });
                             const dataWithoutPassword = yield (0, user_mappers_1.mapUserToDb)((0, user_mappers_1.mapDbUserToUser)(data));
                             delete dataWithoutPassword.password;
@@ -61,14 +60,51 @@ const signIn = (user) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const dbUser = yield (0, user_mappers_1.mapUserToDb)(user);
         const insertResult = yield new Promise((resolve, reject) => {
-            connection_1.default.query("INSERT INTO users SET ?", dbUser, (err, data) => {
-                if (err) {
-                    reject(err.message);
+            connection_1.default.beginTransaction((transactionError) => __awaiter(void 0, void 0, void 0, function* () {
+                if (transactionError) {
+                    reject(transactionError);
+                    return;
                 }
-                else {
-                    resolve(data.insertId);
+                try {
+                    connection_1.default.query("INSERT INTO users SET ?", dbUser, (err, data) => __awaiter(void 0, void 0, void 0, function* () {
+                        if (err) {
+                            connection_1.default.rollback(() => {
+                                reject(err.message);
+                            });
+                        }
+                        else {
+                            const userId = data.insertId;
+                            const cartInsertResult = yield new Promise((cartResolve, cartReject) => {
+                                connection_1.default.query("INSERT INTO cart SET user_id = ?, total = 0, paid = false", [userId], (cartErr, cartData) => {
+                                    if (cartErr) {
+                                        connection_1.default.rollback(() => {
+                                            cartReject(cartErr.message);
+                                        });
+                                    }
+                                    else {
+                                        cartResolve(cartData.insertId);
+                                    }
+                                });
+                            });
+                            connection_1.default.commit((commitError) => {
+                                if (commitError) {
+                                    connection_1.default.rollback(() => {
+                                        reject(commitError);
+                                    });
+                                }
+                                else {
+                                    resolve(userId);
+                                }
+                            });
+                        }
+                    }));
                 }
-            });
+                catch (error) {
+                    connection_1.default.rollback(() => {
+                        reject(error.message);
+                    });
+                }
+            }));
         });
         const selectResult = yield new Promise((resolve, reject) => {
             const sql = "SELECT * FROM users WHERE id = ?";
@@ -80,10 +116,10 @@ const signIn = (user) => __awaiter(void 0, void 0, void 0, function* () {
                     if (data.length > 0) {
                         const dataMapped = (0, user_mappers_1.mapDbUserToUser)(data[0]);
                         const token = jsonwebtoken_1.default.sign(dataMapped, process.env.SECRET_KEY, {
-                            expiresIn: EXPIRATION_TIME.toString(),
+                            expiresIn: (0, time_helper_1.convertMinutesInMillis)(60).toString(),
                         });
                         delete dataMapped.password;
-                        resolve({ token: token, data: dataMapped });
+                        resolve({ token, data: dataMapped });
                     }
                     else {
                         reject("User not found");
@@ -162,7 +198,7 @@ const getUser = (token) => {
         if (decodedToken) {
             delete decodedToken.password;
             const response = {
-                data: (0, user_mappers_1.mapDbUserToUser)(decodedToken)
+                data: (0, user_mappers_1.mapDbUserToUser)(decodedToken),
             };
             return response;
         }

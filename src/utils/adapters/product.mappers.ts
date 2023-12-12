@@ -1,4 +1,4 @@
-import { AirConditioner } from "../../models/airconditioner.type";
+import { Product } from "../../models/product.type";
 
 export interface DbProduct {
   id?: number;
@@ -15,7 +15,7 @@ export interface DbProduct {
 }
 
 export const mapProductToDb = async (
-  product: AirConditioner
+  product: Product
 ): Promise<DbProduct> => {
   return {
     brand: product.brand,
@@ -31,7 +31,7 @@ export const mapProductToDb = async (
   };
 };
 
-export const mapDbProductToProduct = (dbProduct: DbProduct): AirConditioner => {
+export const mapDbProductToProduct = (dbProduct: DbProduct): Product => {
   return {
     id: dbProduct.id!,
     brand: dbProduct.brand,

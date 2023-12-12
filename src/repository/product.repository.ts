@@ -1,5 +1,5 @@
 import connection from "../db/connection";
-import { AirConditioner } from "../models/airconditioner.type";
+import { Product } from "../models/product.type";
 import { mapDbProductToProduct } from "../utils/adapters/product.mappers";
 
 export default class ProductRepository {
@@ -16,7 +16,7 @@ export default class ProductRepository {
           if (result.length === 0) {
             resolve({ data: [] });
           } else {
-            const dataMapped: AirConditioner = result.map((product: any) => {
+            const dataMapped: Product = result.map((product: any) => {
               return mapDbProductToProduct(product);
             });
             resolve({ data: dataMapped });
@@ -36,7 +36,7 @@ export default class ProductRepository {
         if (err) {
           reject(err);
         } else {
-          const dataMapped: AirConditioner[] = result.map((product: any) => {
+          const dataMapped: Product[] = result.map((product: any) => {
             return mapDbProductToProduct(product);
           });
           resolve({ data: dataMapped });

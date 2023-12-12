@@ -1,11 +1,11 @@
-import { AirConditioner } from "../../models/airconditioner.type";
+import { Product } from "../../models/product.type";
 import { Cart } from "../../models/cart.type";
 
 export interface DbCart {
   id?: number;
   user_id: number;
   total: number;
-  productList: AirConditioner[]
+  productList: Product[]
 }
 
 export const mapCartToDb = async (

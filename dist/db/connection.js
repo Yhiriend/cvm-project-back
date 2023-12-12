@@ -4,14 +4,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mysql2_1 = __importDefault(require("mysql2"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 class DatabaseConnection {
     constructor() {
+        console.log(process.env.DATABASE_PORT, process.env.DATABASE_NAME);
         this.connection = mysql2_1.default.createConnection({
-            port: 55139,
-            host: "monorail.proxy.rlwy.net",
-            user: "root",
-            password: "Gb2Fga-Cd2HfG-fD-c65gg-31beFGfBd",
-            database: "railway",
+            port: Number(process.env.DATABASE_PORT),
+            host: process.env.DATABASE_HOST,
+            user: process.env.DATABASE_USER,
+            password: process.env.DATABASE_PASSWORD,
+            database: process.env.DATABASE_NAME,
             authPlugins: {
                 mysql_clear_password: () => () => Buffer.from(process.env.PASSWORD_BD + "\0"),
             },

@@ -29,7 +29,7 @@ export default class ProductRepository {
   searchProducts(keywords: string) {
     const sql = `
     SELECT * FROM products
-    WHERE available = 1 AND brand LIKE '%${keywords}%' ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC`;
+    WHERE available = 1 AND tech LIKE '%${keywords}%' ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC`;
 
     return new Promise((resolve, reject) => {
       connection.query(sql, (err, result: any) => {

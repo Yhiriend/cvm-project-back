@@ -31,7 +31,7 @@ class ProductRepository {
     searchProducts(keywords) {
         const sql = `
     SELECT * FROM products
-    WHERE available = 1 AND brand LIKE '%${keywords}%' ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC`;
+    WHERE available = 1 AND tech LIKE '%${keywords}%' ORDER BY STR_TO_DATE(register_date, '%Y-%m-%d') DESC`;
         return new Promise((resolve, reject) => {
             connection_1.default.query(sql, (err, result) => {
                 if (err) {
